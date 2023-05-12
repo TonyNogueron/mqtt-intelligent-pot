@@ -46,12 +46,16 @@ void loop() {
     if (!client.connected()) {
         reconnect();
     } else {
+        // We create the humidity and temperature variables and read from the sensor
         float h = dht.readHumidity();
         float t = dht.readTemperature();
 
+        //Turns on the light sensor
         digitalWrite(D5, HIGH);
         delay(100);
+        //Reads
         float l = analogRead(A0);
+        //Turns off
         digitalWrite(D5, LOW);
 
         
