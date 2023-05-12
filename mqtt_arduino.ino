@@ -28,6 +28,11 @@ int D5 = 14; //Light sensor
 int D6 = 12; //Soil humidity
 int D7 = 13; // Water pump
 
+// FUNCTION Headers
+void callback(char* topic, byte* payload, unsigned int length);
+void reconnect();
+void setup_wifi();
+void setup_sensors();
 
 void setup() {
     Serial.begin(115200);
@@ -35,3 +40,26 @@ void setup() {
 
 void loop() {
 }
+
+void setup_wifi() {
+    delay(10);
+    //Connection to the Wifi
+    Serial.println();
+    Serial.print("Connecting to ssid: ");
+    Serial.println(ssid);
+
+    WiFi.begin(ssid,password);
+    
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+
+    Serial.println("");
+    Serial.println("Successful connection!");
+    Serial.println("Ip Address: ");
+    Serial.println(WiFi.localIP());
+}
+
+
+
