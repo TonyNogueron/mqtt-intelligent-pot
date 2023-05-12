@@ -61,5 +61,60 @@ void setup_wifi() {
     Serial.println(WiFi.localIP());
 }
 
+//MQTT Connection
+
+void reconnect() {
+    while(!client.connected()) {
+        Serial.print("Attempting to connect to MQTT...");
+        // Creamos un cliente ID
+        String clientId = "Planty_";
+        clientId += String(random(0xffff), HEX);
+        // Intentamos conectar
+        if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) {
+            Serial.println("Connected!");
+            // Nos suscribimos
+            if (client.subscribe(subscription_topic)) {
+                Serial.println("Successfully subsribed to " + subscription_topic);
+            } else {
+                Serial.println("There was an error subscribing to " + subscription_topic);
+            }
+        } else {
+            Serial.print("Failed with error:  ");
+            Serial.print(client.state());
+            Serial.println(" Trying again in 5 seconds");
+            delay(5000);
+        }
+    }
+}
+
+// Callback function that executes when something gets published 
+void callback(char* topic, byte* payload, unsigned int length) {
+    String incoming = "";
+    Serial.print("Message received from: ");
+    Serial.print(topic);
+    Serial.println("");
+    for (int i = 0; i < length; i++) {
+        incoming += (char)payload[i];
+    }
+    incoming.trim();
+    Serial.println("Message: " + incoming);
+    if (incoming == "prender") {
+        // Activate the pump
+        digitalWrite(D7, HIGH);
+        delay(5000);
+        digitalWrite(D7, LOW);
+    }
+}
 
 
+// Setting up the sensor ports and pinModes
+void setup_sensors() {
+    dht.begin();
+    pinMode(D5, OUTPUT);
+    pinMode(D6, OUTPUT);
+    pinMode(D7, OUTPUT);
+    pinMode(A0, INPUT);
+    digitalWrite(D5, LOW);
+    digitalWrite(D6, LOW);
+    digitalWrite(D7, LOW);
+}
