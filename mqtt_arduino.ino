@@ -36,9 +36,43 @@ void setup_sensors();
 
 void setup() {
     Serial.begin(115200);
+    setup_sensors();
+    setup_wifi();
+    client.setServer(mqtt_server, mqtt_port);
+    client.setCallback(callback);
 }
 
 void loop() {
+    if (!client.connected()) {
+        reconnect();
+    } else {
+        float h = dht.readHumidity();
+        float t = dht.readTemperature();
+
+        digitalWrite(D5, HIGH);
+        delay(100);
+        float l = analogRead(A0);
+        digitalWrite(D5, LOW);
+
+        
+        digitalWrite(d6, HIGH);
+        delay(100);
+        float tierra = analogRead(A0);
+        digitalWrite(d6, LOW);
+
+        String data = "Humedad: " + String(h) + "% ";
+        data = data + "Temperatura: " + String(t) + "°C ";
+        tierra = map(tierra, 0, 1023, 100, 0);
+        l = map(l, 0, 1023, 100, 0);
+
+        data = data + " Humedad en Tierra: " + String(tierra) + "% ";
+        data = data + " Luz: " + String(l) + "%";
+        Serial.println(data);
+        data.toCharArray(msg, 80);
+
+        client.publish(publication_topic, msg);
+    }
+    client.loop();
 }
 
 void setup_wifi() {
